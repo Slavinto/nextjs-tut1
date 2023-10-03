@@ -1,0 +1,276 @@
+@use "colors" as c;
+@use "maps";
+@use "variables" as v;
+
+@mixin background($image: #fff) {
+    @if type-of($image) == string {
+        background-image: url($image);
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position-x: center;
+    }
+    @if type-of($image) == color {
+        background-color: $image;
+    }
+    // 144rem;
+}
+
+// To quickly centre a block element without having to worry about if there is any top or bottom margin already applied.
+
+@mixin push--auto {
+    margin: {
+        left: auto;
+        right: auto;
+    }
+}
+
+// center a block vertically
+@mixin vertical-center {
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
+// A massive time saver! You can just use pixel values but we have some default breakpoints setup that work too, another time saver while keeping your breakpoints consistent.
+
+// v.$bps: (
+//     "phone": 400px,
+//     "phone-wide": 480px,
+//     "phablet": 560px,
+//     "tablet-small": 640px,
+//     "tablet": 768px,
+//     "tablet-wide": 1024px,
+//     "desktop": 1248px,
+//     "desktop-wide": 1440px,
+// );
+
+@mixin mq($width, $type: min) {
+    @if map_has_key(v.$bps, $width) {
+        $width: calc(map_get(v.$bps, $width));
+        @if $type == max {
+            $width: $width - 1px;
+        }
+        @media only screen and (#{$type}-width: $width) {
+            @content;
+        }
+    }
+}
+
+@mixin truncate($truncation-boundary) {
+    max-width: $truncation-boundary;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+@mixin create-responsive-image($curwidth: 32) {
+    // $curwidth - original mobile width
+
+    // 1st breakpoint divided by initial mobile-first size
+    $ratio: calc($phoneRem / $curwidth);
+
+    width: $curwidth + rem;
+    height: 100%;
+    object-fit: scale-down;
+    object-position: 0 0;
+
+    @include mq(phone) {
+        //400px
+        min-width: calc($curwidth * $ratio) + rem;
+    }
+    @include mq(phone-wide) {
+        //480px
+        min-width: calc($phoneRem * $ratio) + rem;
+    }
+    @include mq(phablet) {
+        //560px
+        min-width: calc($phone-wideRem * $ratio) + rem;
+    }
+    @include mq(tablet-small) {
+        //640px
+        min-width: $phabletRem + rem;
+    }
+    @include mq(tablet) {
+        //768px
+        min-width: $tablet-smallRem + rem;
+    }
+    /*
+    @include mq(tablet-wide) {
+        //1024px
+        min-width: $tabletRem + rem;
+    }
+
+    @include mq(desktop) {
+        //1248px
+        min-width: $tablet-wideRem + rem;
+    }
+    @include mq(desktop-wide) {
+        //1440px
+        min-width: $desktopRem + rem;
+    }
+    
+    */
+}
+
+@mixin switch-layout(
+    // starting width - rem
+    $starting-width: 10,
+    // starting height - rem
+    $starting-height: 10,
+    $layout: mobile
+) {
+    $aspect-ratio: calc($starting-height / $starting-width);
+
+    // -------------------------
+    // mobile layout
+    // -------------------------
+    @if ($layout == mobile) {
+        $index: calc($starting-width / $phoneRem);
+
+        @media (width <= 400px) {
+            //400px
+            $curwidth: calc($phoneRem * $index);
+            width: $curwidth + rem;
+            height: calc($curwidth * $aspect-ratio) + rem;
+        }
+        @include mq(phone) {
+            //400px
+            width: $starting-width + rem;
+            height: calc($starting-width * $aspect-ratio) + rem;
+        }
+    } @else if ($layout == desktop) {
+        // -------------------------
+        // desktop layout
+        // -------------------------
+        $index: calc($starting-width / $desktopRem);
+        @media (width >= 1248px) {
+            //1440px
+            $curwidth: calc($desktop-wideRem * $index);
+            width: $curwidth + rem;
+            height: $curwidth * $aspect-ratio + rem;
+        }
+
+        @include mq(desktop, max) {
+            //1248px
+            $curwidth: calc($desktopRem * $index);
+            width: $curwidth + rem;
+            height: calc($curwidth * $aspect-ratio) + rem;
+        }
+        @include mq(tablet-wide, max) {
+            //1024px
+            $curwidth: $starting-width;
+            max-width: $curwidth + rem;
+            max-height: $starting-height + rem;
+        }
+    }
+}
+
+@mixin btn {
+    display: inline-block;
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 1.5rem 2.8rem;
+    border-radius: 5px;
+    letter-spacing: 0.14em;
+}
+
+@mixin center-absolute {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@mixin full-width-flex {
+    align-self: stretch;
+    display: flex;
+    flex: 1 1 100%;
+}
+
+@mixin icon-image {
+    object-position: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    object-fit: none;
+}
+
+@mixin overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 0;
+    color: c.$headerText;
+}
+
+/*===========================================*/
+// Default styling classes
+/*===========================================*/
+@mixin centered {
+    margin: 0 auto;
+}
+
+@mixin mobile-link {
+    display: none;
+    @include mq(tablet, max) {
+        display: inline-block;
+    }
+}
+
+@mixin wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+    min-height: 100%;
+    overflow: hidden;
+    flex-direction: column;
+
+    // &::before {
+    //     content: "";
+    //     position: absolute;
+    //     top: 0;
+    //     z-index: -1;
+    //     width: 144rem;
+    //     height: 68.3rem;
+    //     @include background(v.$headerBg);
+    // }
+
+    // &::after {
+    //     content: "";
+    //     position: absolute;
+    //     bottom: 0;
+    //     z-index: -1;
+    //     width: 144rem;
+    //     height: 47.1rem;
+    //     background-color: #2d3e74;
+    //     @include background(v.$footerBg);
+    //     background-size: 64.8rem;
+    //     background-position: bottom right 8rem;
+    // }
+}
+
+// adaptive image
+@mixin adaptive {
+    width: 100%;
+    height: 100%;
+    object-position: 0 0;
+    object-fit: cover;
+}
+
+@mixin text {
+    font-family: v.$fontFamily;
+    font-size: 1.6rem;
+    font-style: normal;
+    font-weight: 300;
+    line-height: 2.9rem;
+    &._light {
+        color: #fff;
+    }
+    &._dark {
+        color: c.$dark;
+    }
+}

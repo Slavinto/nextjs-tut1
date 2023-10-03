@@ -1,0 +1,19 @@
+@use "header";
+@use "home";
+@use "footer";
+@use "form";
+@use "profile";
+
+@use "partials" as p;
+
+.wrapper {
+    @include p.wrapper;
+}
+
+main {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 9rem;
+}

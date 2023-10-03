@@ -1,0 +1,29 @@
+@use "partials" as p;
+
+.profile {
+    &__container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    &__image {
+        @include p.adaptive;
+        border-radius: 50%;
+        // width: 34rem;
+        // height: 40rem;
+    }
+    &__image-container {
+        width: 15rem;
+        height: 15rem;
+        align-self: center;
+    }
+    &__title {
+        align-self: center;
+    }
+    &__description {
+    }
+    &__link {
+    }
+    &__home-link {
+    }
+}
